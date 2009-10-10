@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="yes"?><!DOCTYPE wcregion [
+	<!ELEMENT wcregion (rid, error, rname, region_wordcount, max, min, stddev, average, count)>
+	<!ELEMENT rid (#PCDATA)>
+	<!ELEMENT error (#PCDATA)>
+	<!ELEMENT rname (#PCDATA)>
+	<!ELEMENT region_wordcount (#PCDATA)>
+	<!ELEMENT max (#PCDATA)>
+	<!ELEMENT min (#PCDATA)>
+	<!ELEMENT stddev (#PCDATA)>
+	<!ELEMENT average (#PCDATA)>
+	<!ELEMENT count (#PCDATA)>
+]>
+<wcregion>
+<rid>190</rid>
+<rname>United States :: California :: East Bay</rname>
+<region_wordcount>9705674</region_wordcount>
+<max>128763</max>
+<min>0</min>
+<stddev>0</stddev>
+<average>28800</average>
+<count>337</count>
+</wcregion>

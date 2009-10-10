@@ -1,0 +1,22 @@
+<?xml version="1.0" standalone="yes"?><!DOCTYPE wcgenre [
+	<!ELEMENT wcgenre (gid, error, gname, genre_wordcount, max, min, stddev, average, count)>
+	<!ELEMENT gid (#PCDATA)>
+	<!ELEMENT error (#PCDATA)>
+	<!ELEMENT gname (#PCDATA)>
+	<!ELEMENT genre_wordcount (#PCDATA)>
+	<!ELEMENT max (#PCDATA)>
+	<!ELEMENT min (#PCDATA)>
+	<!ELEMENT stddev (#PCDATA)>
+	<!ELEMENT average (#PCDATA)>
+	<!ELEMENT count (#PCDATA)>
+]>
+<wcgenre>
+<gid>5</gid>
+<gname>Historical Fiction</gname>
+<genre_wordcount>28813857</genre_wordcount>
+<max>200325</max>
+<min>0</min>
+<stddev>0</stddev>
+<average>26556</average>
+<count>1085</count>
+</wcgenre>
