@@ -78,6 +78,44 @@ class NaNoReportCard {
 		add_options_page( __( 'NaNoWriMo Report Card Settings',  'nanorc' ), __( 'NaNo Report Card', 'nanorc' ), 'edit_posts', 'nanorc-options', array($this, 'page_options') );
 	
 	} // end setup_pages
+
+	/**
+	 * Displays a date (no time) form that can be used when creating/editing events.
+	 *
+	 * @package NaNoRC
+	 * @since	1.0
+	 * 
+	 * @param	string	$selected_date	A MySQL formatted date string
+	 * @param	string	$id_prefix		Prefix to be used for form ids (useful when you need more than one date form at a time)
+	 */
+	function date_form( $selected_date, $id_prefix = '' ) {
+		global $wp_locale;
+	
+		$jj = mysql2date( 'd', $selected_date, false );
+		$mm = mysql2date( 'm', $selected_date, false );
+		$aa = mysql2date( 'Y', $selected_date, false );
+		
+		$month = '<select id="' . $id_prefix . 'mm" name="' . $id_prefix . 'mm">' . "\n";
+		for ( $i = 1; $i < 13; $i = $i +1 ) {
+			$monthnum = zeroise($i, 2);
+			$month .= "\t\t\t\t\t\t\t" . '<option value="' . $monthnum . '"';
+			if ( $i == $mm )
+				$month .= ' selected="selected"';
+			/* translators: 1: month number (01, 02, etc.), 2: month abbreviation */
+			$month .= '>' . sprintf( __( '%1$s-%2$s' ), $monthnum, $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) ) ) . "</option>\n";
+		}
+		$month .= '</select>';
+
+		$day = '<input type="text" id="' . $id_prefix . 'jj" name="' . $id_prefix . 'jj" value="' . $jj . '" size="2" maxlength="2" autocomplete="off" />';
+		$year = '<input type="text" id="' . $id_prefix . 'aa" name="' . $id_prefix . 'aa" value="' . $aa . '" size="4" maxlength="4" autocomplete="off" />';
+
+		echo '<div class="timestamp-wrap">';
+		/* translators: 1: month input, 2: day input, 3: year input, 4: hour input, 5: minute input */
+		printf(__('%1$s%2$s, %3$s'), $month, $day, $year);
+		
+		echo '</div>';
+	
+	} // end date_form
 	
 	// Displays the NaNoWriMo page under the Dashbaord
 	function page_updates() {
@@ -94,9 +132,62 @@ class NaNoReportCard {
 	function page_options() {
 	?>
 		<div class="wrap">
-			<div id="icon-options-general" class="icon32"><br /></div><h2><?php _e( 'NaNoWriMo Report Card Settings', 'nanorc' ); ?></h2>
+			<?php screen_icon(); ?>
+			<h2><?php _e( 'NaNoWriMo Report Card Settings', 'nanorc' ); ?></h2>
 			
-			
+			<h3 class="title"><?php _e( 'Events', 'nanorc' ); ?></h3>
+			<table class="wp-list-table widefat fixed nanorc_events">
+				<thead>
+					<tr>
+						<th><?php _e( 'Event Name', 'nanorc' ); ?></th>
+						<th><?php _e( 'Start Date', 'nanorc' ); ?></th>
+						<th><?php _e( 'End Date', 'nanorc' ); ?></th>
+						<th><?php _e( 'Goal', 'nanorc' ); ?></th>
+						<th><!-- edit/delete/create --></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="example">
+						<td><strong>Test Event</strong></td>
+						<td>Nov 1, 2012</td>
+						<td>Nov 30, 2012</td>
+						<td>50000 words</td>
+						<td>
+							<span class="edit"><a href="#">Edit</a></span> |
+							<span class="trash"><a href="#" class="submitdelete">Delete</a></span>
+						</td>
+					</tr>
+
+					<tr class="example">
+					<form id="addevent" action="page_options" method="post">
+						<input type="hidden" value="add-event" name="action" />
+						<?php wp_nonce_field('nanorc_addevent_nonce', 'nanorc_addevent_submit'); ?>
+						<td>
+							<label for="" style="display: none;"><?php _e( 'Event Name', 'nanorc' ); ?></label>
+							<input type="text" name="" id="" />
+						</td>
+						<td>
+							<?php $this->date_form( current_time('mysql'), 'start_' ); ?>
+						</td>
+						<td>
+							<?php $this->date_form( current_time('mysql'), 'end_' ); ?>
+						</td>
+						<td>
+							<label for="goal-count" style="display: none;"><?php _e( 'Goal Count', 'nanorc' ); ?></label>
+							<input type="text" name="goal-count" /> 
+							<label for="goal-type" style="display: none;"><?php _e( 'Goal Type', 'nanorc' ); ?></label>
+							<select name="" id="">
+								<option value="words"><?php _e( 'Words', 'nanorc' ); ?></option>
+								<option value="pages"><?php _e( 'Pages', 'nanorc' ); ?></option>
+								<option value="scenes"><?php _e( 'Scenes', 'nanorc' ); ?></option>
+								<option value="hours"><?php _e( 'Hours', 'nanorc' ); ?></option>
+							</select>
+						</td>
+						<td><input type="submit" class="button button-primary" value="Create Event" name="" /></td>
+					</form>
+					</tr>					
+				</tbody>
+			</table>			
 		</div>
 	<?php
 	} // end page_options
