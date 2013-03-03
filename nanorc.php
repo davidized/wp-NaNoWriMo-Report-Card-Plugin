@@ -136,59 +136,102 @@ class NaNoReportCard {
 			<h2><?php _e( 'NaNoWriMo Report Card Settings', 'nanorc' ); ?></h2>
 			
 			<h3 class="title"><?php _e( 'Events', 'nanorc' ); ?></h3>
-			<table class="wp-list-table widefat fixed nanorc_events">
-				<thead>
-					<tr>
-						<th><?php _e( 'Event Name', 'nanorc' ); ?></th>
-						<th><?php _e( 'Start Date', 'nanorc' ); ?></th>
-						<th><?php _e( 'End Date', 'nanorc' ); ?></th>
-						<th><?php _e( 'Goal', 'nanorc' ); ?></th>
-						<th><!-- edit/delete/create --></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr class="example">
-						<td><strong>Test Event</strong></td>
-						<td>Nov 1, 2012</td>
-						<td>Nov 30, 2012</td>
-						<td>50000 words</td>
-						<td>
-							<span class="edit"><a href="#">Edit</a></span> |
-							<span class="trash"><a href="#" class="submitdelete">Delete</a></span>
-						</td>
-					</tr>
+			
+			<div id="col-container">
+				<div id="col-right">
+					<table class="wp-list-table widefat fixed nanorc_events">
+						<thead>
+							<tr>
+								<th><?php _e( 'Event Name', 'nanorc' ); ?></th>
+								<th><?php _e( 'Start Date', 'nanorc' ); ?></th>
+								<th><?php _e( 'End Date', 'nanorc' ); ?></th>
+								<th><?php _e( 'Goal', 'nanorc' ); ?></th>
+							</tr>
+						</thead>
+						<tfoot>
+							<tr>
+								<th><?php _e( 'Event Name', 'nanorc' ); ?></th>
+								<th><?php _e( 'Start Date', 'nanorc' ); ?></th>
+								<th><?php _e( 'End Date', 'nanorc' ); ?></th>
+								<th><?php _e( 'Goal', 'nanorc' ); ?></th>
+							</tr>
+						</tfoot>
+						<tbody>
+							<tr class="example alternate">
+								<td>
+									<strong>Test Event</strong>
+									<br /><br />
+									<div class="row-actions">
+										<span class="edit"><a href="#">Edit</a></span> |
+										<span class="trash"><a href="#" class="submitdelete">Delete</a></span>
+									</div>
+								</td>
+								<td>Nov 1, 2011</td>
+								<td>Nov 30, 2011</td>
+								<td>50000 words</td>
+							</tr>
+							<tr class="example">
+								<td>
+									<strong>Test Event</strong>
+									<br /><br />
+									<div class="row-actions">
+										<span class="edit"><a href="#">Edit</a></span> |
+										<span class="trash"><a href="#" class="submitdelete">Delete</a></span>
+									</div>
+								</td>
+								<td>Nov 1, 2012</td>
+								<td>Nov 30, 2012</td>
+								<td>50000 words</td>
+							</tr>			
+						</tbody>
 
-					<tr class="example">
-					<form id="addevent" action="page_options" method="post">
-						<input type="hidden" value="add-event" name="action" />
-						<?php wp_nonce_field('nanorc_addevent_nonce', 'nanorc_addevent_submit'); ?>
-						<td>
-							<label for="" style="display: none;"><?php _e( 'Event Name', 'nanorc' ); ?></label>
-							<input type="text" name="" id="" />
-						</td>
-						<td>
-							<?php $this->date_form( current_time('mysql'), 'start_' ); ?>
-						</td>
-						<td>
-							<?php $this->date_form( current_time('mysql'), 'end_' ); ?>
-						</td>
-						<td>
-							<label for="goal-count" style="display: none;"><?php _e( 'Goal Count', 'nanorc' ); ?></label>
-							<input type="text" name="goal-count" /> 
-							<label for="goal-type" style="display: none;"><?php _e( 'Goal Type', 'nanorc' ); ?></label>
-							<select name="" id="">
-								<option value="words"><?php _e( 'Words', 'nanorc' ); ?></option>
-								<option value="pages"><?php _e( 'Pages', 'nanorc' ); ?></option>
-								<option value="scenes"><?php _e( 'Scenes', 'nanorc' ); ?></option>
-								<option value="hours"><?php _e( 'Hours', 'nanorc' ); ?></option>
-							</select>
-						</td>
-						<td><input type="submit" class="button button-primary" value="Create Event" name="" /></td>
-					</form>
-					</tr>					
-				</tbody>
-			</table>			
-		</div>
+					</table>
+				</div> <!-- #col-right -->
+				<div id="col-left">
+					<div class="col-wrap">
+						<div class="form-wrap">
+							<h3><?php _e( 'Add New Event', 'nanorc' ); ?></h3>
+							<form id="addevent" action="page_options" method="post">
+								<input type="hidden" value="add-event" name="action" />
+								<?php wp_nonce_field('nanorc_addevent_nonce', 'nanorc_addevent_submit'); ?>
+
+								<div class="form-field-required">
+									<label for="event-name"><?php _e( 'Event Name', 'nanorc' ); ?></label>
+									<input type="text" name="event-name" id="event-name" size="40" value="" />
+								</div>
+
+								<div class="form-field-required">
+									<h4><?php _e( 'Start Date', 'nanorc' ); ?></h4>
+									<?php $this->date_form( current_time('mysql'), 'start_' ); ?>
+								</div>
+
+								<div class="form-field-required">
+									<h4><?php _e( 'End Date', 'nanorc' ); ?></h4>
+									<?php $this->date_form( current_time('mysql'), 'end_' ); ?>
+								</div>
+
+								<div class="form-field-required">
+									<h4><?php _e( 'Goal', 'nanorc' ); ?></h4>
+									<input type="text" name="goal-count" /> 
+
+									<select name="" id="">
+										<option value="words"><?php _e( 'Words', 'nanorc' ); ?></option>
+										<option value="pages"><?php _e( 'Pages', 'nanorc' ); ?></option>
+										<option value="scenes"><?php _e( 'Scenes', 'nanorc' ); ?></option>
+										<option value="hours"><?php _e( 'Hours', 'nanorc' ); ?></option>
+									</select>
+								</div>
+								
+								<p class="submit">
+									<input type="submit" class="button button-primary" value="Create Event" name="" />
+								</p>
+									
+							</form>	
+						</div> <!-- .form-wrap -->
+					</div> <!-- .col-wrap -->
+				</div> <!-- #col-left -->
+			</div> <!-- #col-container -->
+		</div> <!-- #wrap -->
 	<?php
 	} // end page_options
 
