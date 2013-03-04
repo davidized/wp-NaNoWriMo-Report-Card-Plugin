@@ -143,6 +143,7 @@ class NaNoReportCard {
 						<thead>
 							<tr>
 								<th><?php _e( 'Event Name', 'nanorc' ); ?></th>
+								<th><?php _e( 'Title', 'nanorc' ); ?></th>
 								<th><?php _e( 'Start Date', 'nanorc' ); ?></th>
 								<th><?php _e( 'End Date', 'nanorc' ); ?></th>
 								<th><?php _e( 'Goal', 'nanorc' ); ?></th>
@@ -151,6 +152,7 @@ class NaNoReportCard {
 						<tfoot>
 							<tr>
 								<th><?php _e( 'Event Name', 'nanorc' ); ?></th>
+								<th><?php _e( 'Title', 'nanorc' ); ?></th>
 								<th><?php _e( 'Start Date', 'nanorc' ); ?></th>
 								<th><?php _e( 'End Date', 'nanorc' ); ?></th>
 								<th><?php _e( 'Goal', 'nanorc' ); ?></th>
@@ -162,10 +164,11 @@ class NaNoReportCard {
 									<strong>Test Event</strong>
 									<br /><br />
 									<div class="row-actions">
-										<span class="edit"><a href="#">Edit</a></span> |
-										<span class="trash"><a href="#" class="submitdelete">Delete</a></span>
+										<span class="edit"><a href="#"><?php _e( 'Edit', 'nanorc' ); ?></a></span> |
+										<span class="trash"><a href="#" class="submitdelete"><?php _e( 'Delete', 'nanorc' ); ?></a></span>
 									</div>
 								</td>
+								<td>My Amazing Novel</td>
 								<td>Nov 1, 2011</td>
 								<td>Nov 30, 2011</td>
 								<td>50000 words</td>
@@ -175,10 +178,11 @@ class NaNoReportCard {
 									<strong>Test Event</strong>
 									<br /><br />
 									<div class="row-actions">
-										<span class="edit"><a href="#">Edit</a></span> |
-										<span class="trash"><a href="#" class="submitdelete">Delete</a></span>
+										<span class="edit"><a href="#"><?php _e( 'Edit', 'nanorc' ); ?></a></span> |
+										<span class="trash"><a href="#" class="submitdelete"><?php _e( 'Delete', 'nanorc' ); ?></a></span>
 									</div>
 								</td>
+								<td>Another Amazing Novel</td>
 								<td>Nov 1, 2012</td>
 								<td>Nov 30, 2012</td>
 								<td>50000 words</td>
@@ -199,22 +203,28 @@ class NaNoReportCard {
 									<label for="event-name"><?php _e( 'Event Name', 'nanorc' ); ?></label>
 									<input type="text" name="event-name" id="event-name" size="40" value="" />
 								</div>
-
-								<div class="form-field-required">
-									<h4><?php _e( 'Start Date', 'nanorc' ); ?></h4>
-									<?php $this->date_form( current_time('mysql'), 'start_' ); ?>
+								
+								<div class="form-field">
+									<label for="event-title"><?php _e( 'Title', 'nanorc' ); ?></label>
+									<input type="text" name="event-title" id="event-title" size="40" value="" />
+								
 								</div>
 
-								<div class="form-field-required">
+								<div class="form-field">
+									<h4><?php _e( 'Start Date', 'nanorc' ); ?></h4>
+									<?php $this->date_form( current_time('mysql'), 'event-start-' ); ?>
+								</div>
+
+								<div class="form-field">
 									<h4><?php _e( 'End Date', 'nanorc' ); ?></h4>
-									<?php $this->date_form( current_time('mysql'), 'end_' ); ?>
+									<?php $this->date_form( current_time('mysql'), 'event-end-' ); ?>
 								</div>
 
 								<div class="form-field-required">
 									<h4><?php _e( 'Goal', 'nanorc' ); ?></h4>
-									<input type="text" name="goal-count" /> 
+									<input type="text" name="goal-count" id="goal-count" size="40" value="" /> 
 
-									<select name="" id="">
+									<select name="goal-type" id="goal-type">
 										<option value="words"><?php _e( 'Words', 'nanorc' ); ?></option>
 										<option value="pages"><?php _e( 'Pages', 'nanorc' ); ?></option>
 										<option value="scenes"><?php _e( 'Scenes', 'nanorc' ); ?></option>
