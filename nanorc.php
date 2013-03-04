@@ -144,8 +144,7 @@ class NaNoReportCard {
 							<tr>
 								<th><?php _e( 'Event Name', 'nanorc' ); ?></th>
 								<th><?php _e( 'Title', 'nanorc' ); ?></th>
-								<th><?php _e( 'Start Date', 'nanorc' ); ?></th>
-								<th><?php _e( 'End Date', 'nanorc' ); ?></th>
+								<th><?php _e( 'Start Date', 'nanorc' ); ?><br /><?php _e( 'End Date', 'nanorc' ); ?></th>
 								<th><?php _e( 'Goal', 'nanorc' ); ?></th>
 							</tr>
 						</thead>
@@ -153,8 +152,7 @@ class NaNoReportCard {
 							<tr>
 								<th><?php _e( 'Event Name', 'nanorc' ); ?></th>
 								<th><?php _e( 'Title', 'nanorc' ); ?></th>
-								<th><?php _e( 'Start Date', 'nanorc' ); ?></th>
-								<th><?php _e( 'End Date', 'nanorc' ); ?></th>
+								<th><?php _e( 'Start Date', 'nanorc' ); ?><br /><?php _e( 'End Date', 'nanorc' ); ?></th>
 								<th><?php _e( 'Goal', 'nanorc' ); ?></th>
 							</tr>
 						</tfoot>
@@ -169,8 +167,7 @@ class NaNoReportCard {
 									</div>
 								</td>
 								<td>My Amazing Novel</td>
-								<td>Nov 1, 2011</td>
-								<td>Nov 30, 2011</td>
+								<td>Nov 1, 2011<br />Nov 30, 2011</td>
 								<td>50000 words</td>
 							</tr>
 							<tr class="example">
@@ -183,8 +180,7 @@ class NaNoReportCard {
 									</div>
 								</td>
 								<td>Another Amazing Novel</td>
-								<td>Nov 1, 2012</td>
-								<td>Nov 30, 2012</td>
+								<td>Nov 1, 2012<br />Nov 30, 2012</td>
 								<td>50000 words</td>
 							</tr>			
 						</tbody>
@@ -207,7 +203,6 @@ class NaNoReportCard {
 								<div class="form-field">
 									<label for="event-title"><?php _e( 'Title', 'nanorc' ); ?></label>
 									<input type="text" name="event-title" id="event-title" size="40" value="" />
-								
 								</div>
 
 								<div class="form-field">
