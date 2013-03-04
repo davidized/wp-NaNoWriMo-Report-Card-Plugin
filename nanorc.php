@@ -117,6 +117,117 @@ class NaNoReportCard {
 	
 	} // end date_form
 	
+    /**
+     * Takes month, day, and year from input form, validates input, and outputs in MySQL date format 
+     * 
+	 * @param	string	$month	Month from form input
+	 * @param	string	$day	Day from form input
+	 * @param	string	$year	Year from form input - may be YY or YYYY, will be converted later
+	 *
+     * @return	bool	Returns false if the inputs are not propertly formatted
+	 * @return	string	Returns MySQL formatted date Y-m-d H:i:s with 00 for H, i, s
+     */
+	function date_validate_construct( $month, $day, $year ) {
+	
+		$month = intval( $month );
+		$day = intval( $day );
+		$year = intval( $year );
+		
+		if ( ! $month || ! $day || ! $year )
+			die('invalid ints'); //return false;
+		
+		if ( 1 > $month || 12 < $month )
+			die('invalid month'); //return false;
+			
+		if ( 4 != strlen( $year ) )
+			die('invalid year'); //return false;
+			
+		switch( $month ):
+			case 1:
+			case 3:
+			case 5:
+			case 7:
+			case 8:
+			case 9:
+			case 10:
+			case 12:
+				if ( 31 < $day )
+					die('invalid day'); //return false;	
+				break;
+			case 4:
+			case 6:
+			case 11:
+				if ( 30 < $day )
+					die('invalid day'); //return false;
+				break;
+			case 2:
+				if ( 0 == date('L', strtotime("$year-01-01") )  && 28 < $day )
+					die('invalid day'); //return false;
+				
+				if ( 1 == date('L', strtotime("$year-01-01") ) && 29 < $day )
+					die('invalid day'); //return false;
+				break;
+			default:
+				die('invalid month/day' . $month);
+				return false;
+		endswitch;
+
+		return sprintf('%d-%02d-%d 00:00:00', $year, $month, $day);
+
+	} // end date_validate
+	
+    /**
+     * Generates and displays table rows for the events in the database.
+     * 
+	 * @package NaNoRC
+     * @since 1.0
+     * 
+     */
+	 function event_rows() {
+		
+		$events = get_terms( 'nanorc_event', array( 'orderby' => 'id', 'hide_empty' => 0, ) );
+	 
+		$counter = 1; //To add alternate class to rows
+		
+		foreach ( $events as $event ):
+		
+			$event_class = 'class="nanorc-event-' . $event->term_id;
+			if ( 1 == $counter % 2 )
+				$event_class .= ' alternate';
+			$event_class .= '"';
+		
+			$event->description = maybe_unserialize( $event->description );
+			
+		/**
+		 * @todo Make Edit and Delete links functional
+		 * @todo Delete link only available if there aren't any updates for that event (otherwise we'll end up with orphaned updates in the database)
+		 */
+		
+		?>
+	 		<tr <?php echo $event_class; ?>>
+				<td>
+					<strong><?php echo $event->name; ?></strong>
+					<br /><br />
+					<div class="row-actions">
+						<span class="edit"><a href="#"><?php _e( 'Edit', 'nanorc' ); ?></a></span> |
+						<span class="trash"><a href="#" class="submitdelete"><?php _e( 'Delete', 'nanorc' ); ?></a></span>
+					</div>
+				</td>
+				<td><?php echo $event->description['title']; //Title ?></td>
+				<td>
+					<?php echo $event->description['start_date']; //Start Date ?>
+					<br />
+					<?php echo $event->description['end_date']; //End Date?>
+				</td>
+				<td><?php echo $event->description['goal']; //Goal ?> <?php echo $event->description['goal_type']; //Goal Type?></td>
+			</tr>
+		<?php
+			$counter++;
+		endforeach;
+	 
+	 } // end event_rows()
+	
+	
 	// Displays the NaNoWriMo page under the Dashbaord
 	function page_updates() {
 	?>
@@ -130,6 +241,45 @@ class NaNoReportCard {
 	
 	// Displays the NaNoWriMo Report Card Settings page
 	function page_options() {
+	
+		if( !empty($_POST) && check_admin_referer('nanorc_addevent_nonce') ) {
+			
+			$name = sanitize_text_field( $_POST['event-name'] );
+			$title = sanitize_text_field( $_POST['event-title'] );
+			$goal = intval($_POST['goal-count']);
+			$goal_type = $_POST['goal-type'];
+			$start_date = $this->date_validate_construct($_POST['event-start-mm'], $_POST['event-start-jj'], $_POST['event-start-aa']);
+			$end_date = $this->date_validate_construct($_POST['event-end-mm'], $_POST['event-end-jj'], $_POST['event-end-aa']);
+			
+			$possible_goal_type = array( 'words', 'pages', 'scenes', 'hours' );
+				
+			if ( ! $goal || ! in_array( $goal_type, $possible_goal_type ) || false == $start_date || false == $end_date ) {
+				die( 'Invalid input options' );
+			} else {
+				$description = array(
+					'title' => $title,
+					'goal' => $goal,
+					'goal_type' => $goal_type,
+					'start_date' => $start_date,
+					'end_date' => $end_date,
+					);
+			}
+			
+			$description = maybe_serialize( $description );
+					
+			if ( ! term_exists( $name, 'nanorc_event' ) ) {
+				$insert_status = wp_insert_term( $name, 'nanorc_event', array( 'description' => $description ) );
+				if ( is_wp_error($insert_status) )
+					echo $insert_status->get_error_message();
+				
+			} else {
+				/**
+				 * @todo Display some kind of error
+				 */
+			}
+		
+		}
+		
 	?>
 		<div class="wrap">
 			<?php screen_icon(); ?>
@@ -157,32 +307,7 @@ class NaNoReportCard {
 							</tr>
 						</tfoot>
 						<tbody>
-							<tr class="example alternate">
-								<td>
-									<strong>Test Event</strong>
-									<br /><br />
-									<div class="row-actions">
-										<span class="edit"><a href="#"><?php _e( 'Edit', 'nanorc' ); ?></a></span> |
-										<span class="trash"><a href="#" class="submitdelete"><?php _e( 'Delete', 'nanorc' ); ?></a></span>
-									</div>
-								</td>
-								<td>My Amazing Novel</td>
-								<td>Nov 1, 2011<br />Nov 30, 2011</td>
-								<td>50000 words</td>
-							</tr>
-							<tr class="example">
-								<td>
-									<strong>Test Event</strong>
-									<br /><br />
-									<div class="row-actions">
-										<span class="edit"><a href="#"><?php _e( 'Edit', 'nanorc' ); ?></a></span> |
-										<span class="trash"><a href="#" class="submitdelete"><?php _e( 'Delete', 'nanorc' ); ?></a></span>
-									</div>
-								</td>
-								<td>Another Amazing Novel</td>
-								<td>Nov 1, 2012<br />Nov 30, 2012</td>
-								<td>50000 words</td>
-							</tr>			
+							<?php echo $this->event_rows(); ?>
 						</tbody>
 
 					</table>
@@ -191,9 +316,9 @@ class NaNoReportCard {
 					<div class="col-wrap">
 						<div class="form-wrap">
 							<h3><?php _e( 'Add New Event', 'nanorc' ); ?></h3>
-							<form id="addevent" action="page_options" method="post">
+							<form id="addevent" action="options-general.php?page=nanorc-options" method="post">
 								<input type="hidden" value="add-event" name="action" />
-								<?php wp_nonce_field('nanorc_addevent_nonce', 'nanorc_addevent_submit'); ?>
+								<?php wp_nonce_field('nanorc_addevent_nonce'); ?>
 
 								<div class="form-field-required">
 									<label for="event-name"><?php _e( 'Event Name', 'nanorc' ); ?></label>
