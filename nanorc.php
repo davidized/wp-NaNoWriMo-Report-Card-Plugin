@@ -305,8 +305,10 @@ class NaNoReportCard {
 					<strong><?php echo $event->name; ?></strong>
 					<br /><br />
 					<div class="row-actions">
+						<?php if ( current_user_can( 'manage_options' ) ): ?>
 						<span class="edit"><a href="<?php echo esc_url(admin_url() . 'options-general.php?page=nanorc-options&action=edit-event&event_id=' . $event->term_id); ?>"><?php _e( 'Edit', 'nanorc' ); ?></a></span> 
-						<?php if ( 0 == $event->count ): ?>
+						<?php endif; ?>
+						<?php if ( 0 == $event->count && current_user_can( 'manage_options' ) ): ?>
 						| <span class="trash"><a href=" <?php echo esc_url(wp_nonce_url( $delete_event_url . '&event_id=' . $event->term_id, 'nanorc_event_delete_' . $event->term_id )); ?> " class="submitdelete"><?php _e( 'Delete', 'nanorc' ); ?></a></span>
 						<?php endif; ?>
 					</div>
@@ -342,13 +344,13 @@ class NaNoReportCard {
 	
 		$sendback = wp_get_referer();
 	
-		if( !empty($_POST) && 'add-event' == $_POST['action'] && check_admin_referer('nanorc_addevent_nonce') ) {
+		if( !empty($_POST) && 'add-event' == $_POST['action'] && check_admin_referer('nanorc_addevent_nonce') && current_user_can( 'manage_options' ) ) {
 			
 			$this->create_event();
 		
 		} // Add new event
 		
-		if ( isset( $_GET['event_id'] ) && 'edit-event' == $_GET['action'] ) {
+		if ( isset( $_GET['event_id'] ) && 'edit-event' == $_GET['action'] && current_user_can( 'manage_options' ) ) {
 
 			if ( !empty($_POST) && check_admin_referer( 'nanorc_edit_event_' . $_POST['event_id'] ) ) {
 			
