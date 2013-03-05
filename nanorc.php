@@ -119,6 +119,9 @@ class NaNoReportCard {
 	
     /**
      * Takes month, day, and year from input form, validates input, and outputs in MySQL date format 
+	 *
+	 * @package NaNoRC
+	 * @since	1.0
      * 
 	 * @param	string	$month	Month from form input
 	 * @param	string	$day	Day from form input
@@ -177,6 +180,97 @@ class NaNoReportCard {
 	} // end date_validate
 	
     /**
+     * 
+     * @package NaNoRC
+	 * @since 1.0
+     * 
+     * @return <type>
+     */
+	function create_event() {
+	
+		$name = sanitize_text_field( $_POST['event-name'] );
+		$title = sanitize_text_field( $_POST['event-title'] );
+		$goal = intval($_POST['goal-count']);
+		$goal_type = $_POST['goal-type'];
+		$start_date = $this->date_validate_construct($_POST['event-start-mm'], $_POST['event-start-jj'], $_POST['event-start-aa']);
+		$end_date = $this->date_validate_construct($_POST['event-end-mm'], $_POST['event-end-jj'], $_POST['event-end-aa']);
+		
+		$possible_goal_type = array( 'words', 'pages', 'scenes', 'hours' );
+			
+		if ( ! $goal || ! in_array( $goal_type, $possible_goal_type ) || false == $start_date || false == $end_date ) {
+			die( 'Invalid input options' );
+		} else {
+			$description = array(
+				'title' => $title,
+				'goal' => $goal,
+				'goal_type' => $goal_type,
+				'start_date' => $start_date,
+				'end_date' => $end_date,
+				);
+		}
+		
+		$description = maybe_serialize( $description );
+				
+		return wp_insert_term( $name, 'nanorc_event', array( 'description' => $description ) );
+		
+			
+	} // end create_event
+	
+    /**
+     * 
+	 *
+	 * @package NaNoRC
+	 * @since	1.0
+     * 
+     * @param	int		$event_id	The term_id for the event being updated.
+     * @return <type>
+     */
+	function update_event( $event_id ) {
+		
+		$name = sanitize_text_field( $_POST['event-name'] );
+		$title = sanitize_text_field( $_POST['event-title'] );
+		$goal = intval($_POST['goal-count']);
+		$goal_type = $_POST['goal-type'];
+		$start_date = $this->date_validate_construct($_POST['event-start-mm'], $_POST['event-start-jj'], $_POST['event-start-aa']);
+		$end_date = $this->date_validate_construct($_POST['event-end-mm'], $_POST['event-end-jj'], $_POST['event-end-aa']);
+		
+		$possible_goal_type = array( 'words', 'pages', 'scenes', 'hours' );
+			
+		if ( ! $goal || ! in_array( $goal_type, $possible_goal_type ) || false == $start_date || false == $end_date ) {
+			die( 'Invalid input options' );
+		} else {
+			$description = array(
+				'title' => $title,
+				'goal' => $goal,
+				'goal_type' => $goal_type,
+				'start_date' => $start_date,
+				'end_date' => $end_date,
+				);
+		}
+		
+		$description = maybe_serialize( $description );
+		
+		return wp_update_term( $event_id, 'nanorc_event', array( 'name' => $name, 'description' => $description ) );
+		
+	} // end update_event
+	
+    /**
+     * 
+     * 
+	 *
+	 * @package NaNoRC
+	 * @since	1.0
+     * 
+     * @param	int		$event_id	Term_id of the event to delete from the database
+     * @return <type>
+     */
+	 function delete_event( $event_id ) {
+	 
+	 } // end delete_event
+	
+	 
+	
+    /**
      * Generates and displays table rows for the events in the database.
      * 
 	 * @package NaNoRC
@@ -184,6 +278,8 @@ class NaNoReportCard {
      * 
      */
 	 function event_rows() {
+	 
+		$delete_event_url = admin_url() . 'options-general.php?page=nanorc-options&action=delete-event';
 		
 		$events = get_terms( 'nanorc_event', array( 'orderby' => 'id', 'hide_empty' => 0, ) );
 	 
@@ -209,8 +305,10 @@ class NaNoReportCard {
 					<strong><?php echo $event->name; ?></strong>
 					<br /><br />
 					<div class="row-actions">
-						<span class="edit"><a href="#"><?php _e( 'Edit', 'nanorc' ); ?></a></span> |
-						<span class="trash"><a href="#" class="submitdelete"><?php _e( 'Delete', 'nanorc' ); ?></a></span>
+						<span class="edit"><a href="<?php echo esc_url(admin_url() . 'options-general.php?page=nanorc-options&action=edit-event&event_id=' . $event->term_id); ?>"><?php _e( 'Edit', 'nanorc' ); ?></a></span> 
+						<?php if ( 0 == $event->count ): ?>
+						| <span class="trash"><a href=" <?php echo esc_url(wp_nonce_url( $delete_event_url . '&event_id=' . $event->term_id, 'nanorc_event_delete_' . $event->term_id )); ?> " class="submitdelete"><?php _e( 'Delete', 'nanorc' ); ?></a></span>
+						<?php endif; ?>
 					</div>
 				</td>
 				<td><?php echo $event->description['title']; //Title ?></td>
@@ -242,43 +340,37 @@ class NaNoReportCard {
 	// Displays the NaNoWriMo Report Card Settings page
 	function page_options() {
 	
-		if( !empty($_POST) && check_admin_referer('nanorc_addevent_nonce') ) {
+		$sendback = wp_get_referer();
+	
+		if( !empty($_POST) && 'add-event' == $_POST['action'] && check_admin_referer('nanorc_addevent_nonce') ) {
 			
-			$name = sanitize_text_field( $_POST['event-name'] );
-			$title = sanitize_text_field( $_POST['event-title'] );
-			$goal = intval($_POST['goal-count']);
-			$goal_type = $_POST['goal-type'];
-			$start_date = $this->date_validate_construct($_POST['event-start-mm'], $_POST['event-start-jj'], $_POST['event-start-aa']);
-			$end_date = $this->date_validate_construct($_POST['event-end-mm'], $_POST['event-end-jj'], $_POST['event-end-aa']);
-			
-			$possible_goal_type = array( 'words', 'pages', 'scenes', 'hours' );
-				
-			if ( ! $goal || ! in_array( $goal_type, $possible_goal_type ) || false == $start_date || false == $end_date ) {
-				die( 'Invalid input options' );
-			} else {
-				$description = array(
-					'title' => $title,
-					'goal' => $goal,
-					'goal_type' => $goal_type,
-					'start_date' => $start_date,
-					'end_date' => $end_date,
-					);
-			}
-			
-			$description = maybe_serialize( $description );
-					
-			if ( ! term_exists( $name, 'nanorc_event' ) ) {
-				$insert_status = wp_insert_term( $name, 'nanorc_event', array( 'description' => $description ) );
-				if ( is_wp_error($insert_status) )
-					echo $insert_status->get_error_message();
-				
-			} else {
-				/**
-				 * @todo Display some kind of error
-				 */
-			}
+			$this->create_event();
 		
-		}
+		} // Add new event
+		
+		if ( isset( $_GET['event_id'] ) && 'edit-event' == $_GET['action'] ) {
+
+			if ( !empty($_POST) && check_admin_referer( 'nanorc_edit_event_' . $_POST['event_id'] ) ) {
+			
+				$this->update_event( $_GET['event_id'] );
+				
+				/**
+				 * @todo Display an admin message with something along the lines of "Event __ updated."
+				 */
+			
+			} elseif ( term_exists( intval($_GET['event_id']) ) ) {
+			
+				$this->page_edit_event( intval($_GET['event_id']) );
+				
+			} else {
+				
+				wp_redirect( $sendback );
+								
+			}// Update event or display event form if event exists
+			
+		} elseif ( isset( $_GET['event_id'] ) && 'delete-event' == $_GET['action'] && check_admin_referer( 'nanorc_event_delete_' . $_GET['event_id'] ) ) {
+			echo 'Looks like you want to delete the term: ' . get_term($_GET['event_id'], 'nanorc_event')->name;
+		} else {
 		
 	?>
 		<div class="wrap">
@@ -353,7 +445,7 @@ class NaNoReportCard {
 								</div>
 								
 								<p class="submit">
-									<input type="submit" class="button button-primary" value="Create Event" name="" />
+									<input type="submit" class="button button-primary" value="<?php _e('Create Event', 'nanorc'); ?>" name="" />
 								</p>
 									
 							</form>	
@@ -363,7 +455,69 @@ class NaNoReportCard {
 			</div> <!-- #col-container -->
 		</div> <!-- #wrap -->
 	<?php
+		}
 	} // end page_options
+	
+	function page_edit_event( $event_id ) {
+	
+		$event = get_term( $event_id, 'nanorc_event' );
+		$event_meta = maybe_unserialize( $event->description );
+
+	?>
+		<div id="wrap">	
+			<?php screen_icon(); ?>
+			<h2><?php _e( 'NaNoWriMo Report Card Settings', 'nanorc' ); ?></h2>
+			
+			<h3 class="title"><?php _e( 'Edit Event', 'nanorc' ); ?></
+			<div class="form-wrap">
+				<form id="addevent" action="options-general.php?page=nanorc-options&action=edit-event&event_id=<?php echo $event_id; ?>" method="post">
+					<input type="hidden" value="edit-event" name="action" />
+					<input type="hidden" value="<?php echo $event_id; ?>" name="event_id" />
+					<?php wp_nonce_field('nanorc_edit_event_' . $event_id); ?>
+
+					<div class="form-field-required">
+						<label for="event-name"><?php _e( 'Event Name', 'nanorc' ); ?></label>
+						<input type="text" name="event-name" id="event-name" size="40" value="<?php echo $event->name; ?>" />
+					</div>
+					
+					<div class="form-field">
+						<label for="event-title"><?php _e( 'Title', 'nanorc' ); ?></label>
+						<input type="text" name="event-title" id="event-title" size="40" value="<?php echo $event_meta['title']; ?>" />
+					</div>
+
+					<div class="form-field">
+						<h4><?php _e( 'Start Date', 'nanorc' ); ?></h4>
+						<?php $this->date_form( $event_meta['start_date'], 'event-start-' ); ?>
+					</div>
+
+					<div class="form-field">
+						<h4><?php _e( 'End Date', 'nanorc' ); ?></h4>
+						<?php $this->date_form( $event_meta['end_date'], 'event-end-' ); ?>
+					</div>
+
+					<div class="form-field-required">
+						<h4><?php _e( 'Goal', 'nanorc' ); ?></h4>
+						<input type="text" name="goal-count" id="goal-count" size="40" value="<?php echo $event_meta['goal']; ?>" /> 
+
+						<select name="goal-type" id="goal-type">
+							<option value="words" <?php if ( 'words' == $event_meta['goal_type'] ) echo 'selected'; ?>><?php _e( 'Words', 'nanorc' ); ?></option>
+							<option value="pages" <?php if ( 'pages' == $event_meta['goal_type'] ) echo 'selected'; ?>><?php _e( 'Pages', 'nanorc' ); ?></option>
+							<option value="scenes" <?php if ( 'scenes' == $event_meta['goal_type'] ) echo 'selected'; ?>><?php _e( 'Scenes', 'nanorc' ); ?></option>
+							<option value="hours" <?php if ( 'hours' == $event_meta['goal_type'] ) echo 'selected'; ?>><?php _e( 'Hours', 'nanorc' ); ?></option>
+						</select>
+					</div>
+					
+					<p class="submit">
+						<input type="submit" class="button button-primary" value="<?php _e('Update Event', 'nanorc'); ?>" name="" />
+					</p>
+						
+				</form>	
+			</div> <!-- .form-wrap -->
+		</div> <!-- #wrap -->
+	
+	<?php
+
+	} // end page_edit_event
 
 
 }
